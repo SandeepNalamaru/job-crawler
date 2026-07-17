@@ -28,7 +28,7 @@ jobs:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           ALERT_TO: ${{ secrets.ALERT_TO }}
-        run: python crawler.py
+        run: python crawler.py --days 7
 
       - name: Commit updated jobs_found.csv and seen_jobs.json
         run: |
