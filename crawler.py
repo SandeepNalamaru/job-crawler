@@ -13,6 +13,7 @@ State:  seen_jobs.json  -> tracks first-seen date per job so that date survives 
 Run:  python crawler.py
 """
 
+import argparse
 import csv
 import json
 import os
@@ -30,6 +31,7 @@ import requests
 HERE = Path(__file__).parent
 COMPANIES_FILE = HERE / "companies.csv"
 JOBS_FILE = HERE / "jobs_found.csv"
+RECENT_JOBS_FILE = HERE / "jobs_found_recent.csv"
 STATE_FILE = HERE / "seen_jobs.json"
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (personal job-alert crawler)"}
@@ -110,6 +112,28 @@ def epoch_ms_to_date(ms):
         return datetime.fromtimestamp(int(ms) / 1000, tz=timezone.utc).strftime("%Y-%m-%d")
     except Exception:
         return ""
+
+
+def effective_date(job):
+    """
+    Best available date for a job: the platform's own posted_date when it has
+    one, otherwise first_seen_date (when this crawler first noticed it).
+    Ashby (Ramp) never has a real posted_date, so those rows always fall
+    back to first_seen_date - which means "recent" for a Ramp posting means
+    "recently noticed," not necessarily "recently posted."
+    """
+    return job.get("posted_date") or job.get("first_seen_date") or ""
+
+
+def is_within_days(job, days, today):
+    d = effective_date(job)
+    if not d:
+        return False
+    try:
+        job_date = datetime.strptime(d, "%Y-%m-%d").date()
+    except ValueError:
+        return False
+    return (today - job_date).days <= days
 
 
 # ---------------------------------------------------------------------------
@@ -323,8 +347,9 @@ JOBS_FIELDNAMES = [
 ]
 
 
-def write_jobs_csv(jobs):
-    with open(JOBS_FILE, "w", newline="", encoding="utf-8") as f:
+def write_jobs_csv(jobs, path=None):
+    path = path or JOBS_FILE
+    with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=JOBS_FIELDNAMES)
         w.writeheader()
         for j in jobs:
@@ -352,13 +377,23 @@ def send_email(new_jobs):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--days", type=int, default=None,
+        help="Only include jobs posted/first-seen within this many days in "
+             "jobs_found_recent.csv (0 = today only, 7 = this week). "
+             "jobs_found.csv always contains everything regardless of this flag.",
+    )
+    args = parser.parse_args()
+
     companies = load_companies()
     if not companies:
         print("No active companies in companies.csv.")
         return
 
     state = load_state()  # job_id -> first_seen_date (YYYY-MM-DD)
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = datetime.now(timezone.utc).date()
 
     all_matching = []
     new_jobs = []
@@ -380,14 +415,20 @@ def main():
             if jid in state:
                 j["first_seen_date"] = state[jid]
             else:
-                j["first_seen_date"] = today
-                state[jid] = today
+                j["first_seen_date"] = today_str
+                state[jid] = today_str
                 new_jobs.append(j)
             all_matching.append(j)
 
     save_state(state)
     write_jobs_csv(all_matching)
     print(f"{len(all_matching)} matching role(s) written to {JOBS_FILE.name} ({len(new_jobs)} new)")
+
+    if args.days is not None:
+        recent = [j for j in all_matching if is_within_days(j, args.days, today)]
+        write_jobs_csv(recent, path=RECENT_JOBS_FILE)
+        label = "today" if args.days == 0 else f"last {args.days} days"
+        print(f"{len(recent)} of those are within {label} -> {RECENT_JOBS_FILE.name}")
 
     if new_jobs:
         send_email(new_jobs)
