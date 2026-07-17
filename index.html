@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Financial Analyst Job Tracker</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root {
+    --paper: #F6F3EC;
+    --ink: #161D26;
+    --sub: #5C6672;
+    --faint: #8C95A1;
+    --line: #E4DECF;
+    --card: #FFFFFF;
+    --accent: #1F4E79;
+    --hi: #FCE56B;
+    --strong: #166B4A;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 24px 16px 60px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  header {
+    border-top: 2px solid var(--ink);
+    padding-top: 14px;
+    margin-bottom: 20px;
+  }
+  .eyebrow {
+    font-family: monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sub);
+  }
+  h1 {
+    font-family: monospace;
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin: 4px 0 0;
+  }
+  .meta {
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--faint);
+    margin-top: 8px;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 18px 0;
+  }
+  input, select {
+    font-family: monospace;
+    font-size: 13px;
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--ink);
+  }
+  #search { flex: 1 1 220px; min-width: 160px; }
+  .count-pill {
+    font-family: monospace;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 7px 12px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    white-space: nowrap;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    font-size: 13.5px;
+    vertical-align: top;
+  }
+  th {
+    font-family: monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--sub);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  th:hover { color: var(--ink); }
+  th.sorted::after { content: " \25BC"; font-size: 9px; }
+  th.sorted-asc::after { content: " \25B2"; font-size: 9px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #FAF8F2; }
+  .company-tag {
+    font-family: monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .title-cell { font-weight: 600; }
+  a.apply {
+    font-family: monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--accent);
+    padding: 4px 10px;
+    border-radius: 6px;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .empty-state, .error-state {
+    font-family: monospace;
+    font-size: 13px;
+    color: var(--sub);
+    padding: 40px 20px;
+    text-align: center;
+    background: var(--card);
+    border: 1px dashed var(--faint);
+    border-radius: 10px;
+  }
+  .error-state { color: #8A4B3A; border-color: #8A4B3A; }
+  .snippet {
+    color: var(--sub);
+    font-size: 12.5px;
+    max-width: 320px;
+  }
+  code {
+    background: var(--paper);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">FP&amp;A Application Tracker</div>
+    <h1>JOB TRACKER</h1>
+    <div class="meta" id="lastUpdated">Loading...</div>
+  </header>
+
+  <div class="controls">
+    <input id="search" type="text" placeholder="Filter by title, company, location..." />
+    <select id="companyFilter"><option value="">All companies</option></select>
+    <select id="sourceFilter">
+      <option value="">All sources</option>
+      <option value="greenhouse">Greenhouse</option>
+      <option value="lever">Lever</option>
+      <option value="ashby">Ashby</option>
+      <option value="smartrecruiters">SmartRecruiters</option>
+      <option value="generic">Generic</option>
+    </select>
+    <span class="count-pill" id="countPill">— roles</span>
+  </div>
+
+  <div id="tableContainer"></div>
+</div>
+
+<script>
+  // ---- CONFIGURE THIS: your repo's raw CSV URL ----
+  const CSV_URL = "https://raw.githubusercontent.com/SandeepNalamaru/job-crawler/main/jobs_found.csv";
+
+  const COLUMNS = [
+    { key: "company", label: "Company" },
+    { key: "title", label: "Title" },
+    { key: "location", label: "Location" },
+    { key: "department", label: "Dept" },
+    { key: "source", label: "Source" },
+    { key: "posted_date", label: "Posted" },
+    { key: "first_seen_date", label: "First Seen" },
+    { key: "url", label: "" },
+  ];
+
+  let allRows = [];
+  let sortKey = "first_seen_date";
+  let sortDir = "desc";
+
+  function render() {
+    const q = document.getElementById("search").value.toLowerCase().trim();
+    const companyFilter = document.getElementById("companyFilter").value;
+    const sourceFilter = document.getElementById("sourceFilter").value;
+
+    let rows = allRows.filter(r => {
+      if (companyFilter && r.company !== companyFilter) return false;
+      if (sourceFilter && r.source !== sourceFilter) return false;
+      if (q) {
+        const hay = `${r.title} ${r.company} ${r.location} ${r.department}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+
+    rows.sort((a, b) => {
+      const av = (a[sortKey] || "").toString().toLowerCase();
+      const bv = (b[sortKey] || "").toString().toLowerCase();
+      if (av < bv) return sortDir === "asc" ? -1 : 1;
+      if (av > bv) return sortDir === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    document.getElementById("countPill").textContent = `${rows.length} role${rows.length === 1 ? "" : "s"}`;
+
+    const container = document.getElementById("tableContainer");
+    if (rows.length === 0) {
+      container.innerHTML = `<div class="empty-state">No roles match these filters.</div>`;
+      return;
+    }
+
+    let html = "<table><thead><tr>";
+    COLUMNS.forEach(col => {
+      const cls = col.key === sortKey ? (sortDir === "asc" ? "sorted-asc" : "sorted") : "";
+      html += `<th class="${cls}" data-key="${col.key}">${col.label}</th>`;
+    });
+    html += "</tr></thead><tbody>";
+
+    rows.forEach(r => {
+      html += "<tr>";
+      html += `<td class="company-tag">${escapeHtml(r.company)}</td>`;
+      html += `<td class="title-cell">${escapeHtml(r.title)}</td>`;
+      html += `<td>${escapeHtml(r.location)}</td>`;
+      html += `<td>${escapeHtml(r.department)}</td>`;
+      html += `<td>${escapeHtml(r.source)}</td>`;
+      html += `<td>${escapeHtml(r.posted_date)}</td>`;
+      html += `<td>${escapeHtml(r.first_seen_date)}</td>`;
+      html += `<td>${r.url ? `<a class="apply" href="${escapeAttr(r.url)}" target="_blank" rel="noreferrer">Apply</a>` : ""}</td>`;
+      html += "</tr>";
+    });
+    html += "</tbody></table>";
+    container.innerHTML = html;
+
+    container.querySelectorAll("th[data-key]").forEach(th => {
+      th.addEventListener("click", () => {
+        const key = th.dataset.key;
+        if (!key) return;
+        if (sortKey === key) {
+          sortDir = sortDir === "asc" ? "desc" : "asc";
+        } else {
+          sortKey = key;
+          sortDir = "asc";
+        }
+        render();
+      });
+    });
+  }
+
+  function escapeHtml(s) {
+    if (!s) return "";
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function escapeAttr(s) {
+    return escapeHtml(s).replace(/"/g, "&quot;");
+  }
+
+  function populateCompanyFilter() {
+    const companies = [...new Set(allRows.map(r => r.company))].sort();
+    const sel = document.getElementById("companyFilter");
+    companies.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = c;
+      sel.appendChild(opt);
+    });
+  }
+
+  function loadData() {
+    fetch(CSV_URL, { cache: "no-store" })
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.text();
+      })
+      .then(text => {
+        const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+        allRows = parsed.data;
+        document.getElementById("lastUpdated").textContent =
+          `${allRows.length} rows loaded from jobs_found.csv - fetched just now`;
+        populateCompanyFilter();
+        render();
+      })
+      .catch(err => {
+        document.getElementById("tableContainer").innerHTML =
+          `<div class="error-state">Couldn't load jobs_found.csv (${err.message}).<br>
+           Check that CSV_URL at the top of the script matches your actual repo path,
+           and that the repo is public.</div>`;
+        document.getElementById("lastUpdated").textContent = "Load failed";
+      });
+  }
+
+  document.getElementById("search").addEventListener("input", render);
+  document.getElementById("companyFilter").addEventListener("change", render);
+  document.getElementById("sourceFilter").addEventListener("change", render);
+
+  loadData();
+</script>
+</body>
+</html>
