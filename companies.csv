@@ -1,0 +1,6 @@
+company_name,ats_type,token,url,active,notes
+Ramp,ashby,ramp,,YES,Confirmed live Ashby board
+Stripe,greenhouse,stripe,,YES,Confirmed live Greenhouse board (checked 2026-07-16); stripe.com/jobs is a custom skin on top of the same board
+Databricks,greenhouse,databricks,,YES,Confirmed live Greenhouse board (checked 2026-07-16)
+Plaid,lever,plaid,,YES,Confirmed live Lever board (checked 2026-07-16)
+OpenAI,generic,,https://openai.com/careers/search/,YES,No public Greenhouse/Lever/Ashby/SmartRecruiters board found (checked 2026-07-16) - appears to be a fully custom career site; HTML fallback is best-effort only
