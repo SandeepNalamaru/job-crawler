@@ -44,7 +44,7 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (personal job-alert crawler)"}
 # phrase - titles like "Strategic Finance Associate" won't match unless they
 # also contain the words "financial analyst" somewhere. Add more phrases to
 # widen it back.
-ROLE_KEYWORDS = ["financial analyst"]
+ROLE_KEYWORDS = ["financial analyst", 'FP&A']
 
 # Location match: checks for "united states" / "usa" / "united states of
 # america" as asked, PLUS every US state name and common "remote - US"
@@ -356,24 +356,28 @@ def write_jobs_csv(jobs, path=None):
             w.writerow({k: j.get(k, "") for k in JOBS_FIELDNAMES})
 
 
-def send_email(new_jobs):
+def send_email(jobs, digest_days=None):
     smtp_user = os.environ.get("GMAIL_USER")
     smtp_pass = os.environ.get("GMAIL_APP_PASSWORD")
     to_addr = os.environ.get("ALERT_TO", smtp_user)
     if not smtp_user or not smtp_pass:
         print("GMAIL_USER / GMAIL_APP_PASSWORD not set - skipping email, listing instead:")
-        for j in new_jobs:
+        for j in jobs:
             print(f"- [{j['company']}] {j['title']} ({j.get('location','')}) -> {j['url']}")
         return
-    lines = [f"{j['company']}: {j['title']} ({j.get('location','')})\n{j['url']}\n" for j in new_jobs]
+    lines = [f"{j['company']}: {j['title']} ({j.get('location','')})\n{j['url']}\n" for j in jobs]
     msg = MIMEText("\n".join(lines))
-    msg["Subject"] = f"[Job Alert] {len(new_jobs)} new Financial Analyst posting(s)"
+    if digest_days is not None:
+        label = "today" if digest_days == 0 else f"last {digest_days} days"
+        msg["Subject"] = f"[Job Alert] {len(jobs)} Financial Analyst posting(s) - {label}"
+    else:
+        msg["Subject"] = f"[Job Alert] {len(jobs)} new Financial Analyst posting(s)"
     msg["From"] = smtp_user
     msg["To"] = to_addr
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(smtp_user, smtp_pass)
         server.sendmail(smtp_user, [to_addr], msg.as_string())
-    print(f"Emailed {len(new_jobs)} new posting(s) to {to_addr}")
+    print(f"Emailed {len(jobs)} posting(s) to {to_addr}")
 
 
 def main():
@@ -429,8 +433,9 @@ def main():
         write_jobs_csv(recent, path=RECENT_JOBS_FILE)
         label = "today" if args.days == 0 else f"last {args.days} days"
         print(f"{len(recent)} of those are within {label} -> {RECENT_JOBS_FILE.name}")
-
-    if new_jobs:
+        if recent:
+            send_email(recent, digest_days=args.days)
+    elif new_jobs:
         send_email(new_jobs)
 
 
