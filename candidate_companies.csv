@@ -1,0 +1,108 @@
+company_name,ats_type,token,url,active,confidence,source_note
+Asana,greenhouse,asana,,YES,high,Directly verified - live job-boards.greenhouse.io/Asana/jobs posting found
+SpaceX,greenhouse,spacex,,YES,high,Directly verified - multiple live boards.greenhouse.io/spacex/jobs postings found
+Benchling,greenhouse,benchling,,YES,medium,Directly verified 3 live Greenhouse postings; a community list claims Ashby instead - possibly mid-migration, check both if this returns nothing
+Ross Stores,generic,,https://jobs.rossstores.com/,YES,high,Confirmed NOT on Greenhouse/Lever/Ashby/SmartRecruiters - large retailer likely on Workday; generic HTML fallback only
+Inspire Brands,generic,,https://inspirebrands.wd5.myworkdayjobs.com/InspireCareers,YES,high,Confirmed on Workday - not supported by this tool's 4 API platforms; URL provided is their real Workday board but crawler.py cannot parse Workday
+Evenflo,generic,,https://www.evenflo.com/pages/careers,NO,low,Not individually verified - small company unlikely to be on a major public ATS; row set inactive by default, flip to YES if you confirm a real careers URL
+Transform9,generic,,,NO,low,Not individually verified and could not confirm a public careers URL - row set inactive until you supply one
+Anthropic,greenhouse,anthropic,,YES,medium,From community-maintained ATS mapping (jshchnz/claude-jobs) - not independently re-verified by me
+OpenAI,ashby,openai,,YES,high,"CORRECTION to your existing companies.csv row - directly verified live jobs.ashbyhq.com/openai board with a Finance (38) and Strategic Finance (10) department breakdown. Replace your existing generic OpenAI row with this one."
+Airbnb,greenhouse,airbnb,,YES,medium,Community mapping
+Cloudflare,greenhouse,cloudflare,,YES,medium,Community mapping
+Coinbase,greenhouse,coinbase,,YES,medium,Community mapping
+Datadog,greenhouse,datadog,,YES,medium,Community mapping
+Discord,greenhouse,discord,,YES,medium,Community mapping
+Dropbox,greenhouse,dropbox,,YES,medium,Community mapping
+Figma,greenhouse,figma,,YES,medium,Community mapping
+GitLab,greenhouse,gitlab,,YES,medium,Community mapping
+Instacart,greenhouse,instacart,,YES,medium,Community mapping
+Linear,ashby,linear,,YES,medium,Community mapping
+Lyft,greenhouse,lyft,,YES,medium,Community mapping
+Netlify,greenhouse,netlify,,YES,medium,Community mapping
+Notion,ashby,notion,,YES,medium,Community mapping
+Vercel,greenhouse,vercel,,YES,medium,Community mapping
+Affirm,greenhouse,affirm,,YES,medium,Community mapping - fintech
+Airtable,greenhouse,airtable,,YES,medium,Community mapping
+Brex,greenhouse,brex,,YES,medium,Community mapping - fintech, relevant to your background
+Chime,greenhouse,chime,,YES,medium,Community mapping - fintech
+Clerk,ashby,clerk,,YES,medium,Community mapping
+Cockroach Labs,greenhouse,cockroachlabs,,YES,medium,Community mapping
+Contentful,greenhouse,contentful,,YES,medium,Community mapping
+Duolingo,greenhouse,duolingo,,YES,medium,Community mapping
+Elastic,greenhouse,elastic,,YES,medium,Community mapping
+Flexport,greenhouse,flexport,,YES,medium,Community mapping
+Gusto,greenhouse,gusto,,YES,medium,Community mapping - fintech/payroll
+HubSpot,greenhouse,hubspot,,YES,medium,Community mapping
+Lattice,greenhouse,lattice,,YES,medium,Community mapping
+Marqeta,greenhouse,marqeta,,YES,medium,Community mapping - fintech
+MongoDB,greenhouse,mongodb,,YES,medium,Community mapping
+Neon,ashby,neon,,YES,medium,Community mapping
+Okta,greenhouse,okta,,YES,medium,Community mapping
+Opendoor,greenhouse,opendoor,,YES,medium,Community mapping
+PagerDuty,greenhouse,pagerduty,,YES,medium,Community mapping
+Peloton,greenhouse,peloton,,YES,medium,Community mapping
+Pinterest,greenhouse,pinterest,,YES,medium,Community mapping
+Postman,greenhouse,postman,,YES,medium,Community mapping
+Railway,ashby,railway,,YES,medium,Community mapping
+Reddit,greenhouse,reddit,,YES,medium,Community mapping
+Render,ashby,render,,YES,medium,Community mapping
+Retool,ashby,retool,,YES,medium,Community mapping
+Robinhood,greenhouse,robinhood,,YES,medium,Community mapping - fintech
+Samsara,greenhouse,samsara,,YES,medium,Community mapping
+SoFi,greenhouse,sofi,,YES,medium,Community mapping - fintech
+Spotify,lever,spotify,,YES,medium,Community mapping
+Squarespace,greenhouse,squarespace,,YES,medium,Community mapping
+Supabase,ashby,supabase,,YES,medium,Community mapping
+Tailscale,greenhouse,tailscale,,YES,medium,Community mapping
+Toast,greenhouse,toast,,YES,medium,Community mapping - fintech/payments
+Wikimedia Foundation,greenhouse,wikimedia,,YES,medium,Community mapping
+Amplitude,greenhouse,amplitude,,YES,medium,Community mapping
+Atlassian,lever,atlassian,,YES,medium,Community mapping
+Checkr,greenhouse,checkr,,YES,medium,Community mapping
+Cohere,ashby,cohere,,YES,medium,Community mapping - AI
+Deel,ashby,deel,,YES,medium,Community mapping - fintech/HR
+Drata,ashby,drata,,YES,medium,Community mapping
+Fivetran,greenhouse,fivetran,,YES,medium,Community mapping
+Grammarly,greenhouse,grammarly,,YES,medium,Community mapping
+Justworks,greenhouse,justworks,,YES,medium,Community mapping - HR/payroll
+Kalshi,greenhouse,kalshi,,YES,medium,Community mapping - fintech
+Klaviyo,greenhouse,klaviyo,,YES,medium,Community mapping
+Mercury,greenhouse,mercury,,YES,medium,Community mapping - fintech
+Mixpanel,greenhouse,mixpanel,,YES,medium,Community mapping
+Nextdoor,greenhouse,nextdoor,,YES,medium,Community mapping
+Outreach,lever,outreach,,YES,medium,Community mapping
+PostHog,ashby,posthog,,YES,medium,Community mapping
+Replit,ashby,replit,,YES,medium,Community mapping - AI/dev tools
+Roblox,greenhouse,roblox,,YES,medium,Community mapping
+Smartsheet,greenhouse,smartsheet,,YES,medium,Community mapping
+Snyk,ashby,snyk,,YES,medium,Community mapping
+Block,greenhouse,block,,YES,medium,Community mapping - fintech (Square/Cash App)
+Braze,greenhouse,braze,,YES,medium,Community mapping
+Carta,greenhouse,carta,,YES,medium,Community mapping - cap table/fintech
+ClickUp,ashby,clickup,,YES,medium,Community mapping
+Coursera,greenhouse,coursera,,YES,medium,Community mapping
+Cursor,ashby,cursor,,YES,medium,Community mapping - AI dev tools
+Deepgram,ashby,deepgram,,YES,medium,Community mapping - AI
+DeepMind,greenhouse,deepmind,,YES,medium,Community mapping - AI
+Fastly,greenhouse,fastly,,YES,medium,Community mapping
+Fireblocks,greenhouse,fireblocks,,YES,medium,Community mapping - fintech/crypto
+Godaddy,greenhouse,godaddy,,YES,medium,Community mapping
+Intercom,greenhouse,intercom,,YES,medium,Community mapping
+Pinecone,ashby,pinecone,,YES,medium,Community mapping - AI/vector db
+Podium,ashby,podium,,YES,medium,Community mapping
+Payoneer,greenhouse,payoneer,,YES,medium,Community mapping - fintech
+Runway,ashby,runway,,YES,medium,Community mapping - AI
+Scale AI,greenhouse,scaleai,,YES,medium,Community mapping - AI
+Upstart,greenhouse,upstart,,YES,medium,Community mapping - fintech
+Vanta,ashby,vanta,,YES,medium,Community mapping
+WorkOS,ashby,workos,,YES,medium,Community mapping
+Anyscale,ashby,anyscale,,YES,medium,Community mapping - AI infra
+Calendly,greenhouse,calendly,,YES,medium,Community mapping
+CircleCI,greenhouse,circleci,,YES,medium,Community mapping
+LaunchDarkly,greenhouse,launchdarkly,,YES,medium,Community mapping
+Palantir,lever,palantir,,YES,medium,Community mapping - defense/data, relevant to SpaceX-adjacent interest
+Pendo,greenhouse,pendo,,YES,medium,Community mapping
+Perplexity,ashby,perplexity,,YES,medium,Community mapping - AI
+Twilio,greenhouse,twilio,,YES,medium,Community mapping
+Waymo,greenhouse,waymo,,YES,medium,Community mapping - self-driving, relevant to SpaceX-adjacent interest

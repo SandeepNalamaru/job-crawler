@@ -1,0 +1,2 @@
+company,title,location,department,employment_type,compensation,source,posted_date,first_seen_date,url,description_snippet
+EXAMPLE - Plaid,EXAMPLE - Financial Analyst,"San Francisco, CA",Finance,Full-time,,lever,2026-07-14,2026-07-16,https://example.com/this-row-is-a-sample-not-a-real-posting,"This row shows the output shape. Delete it, real rows appear after you run crawler.py."
